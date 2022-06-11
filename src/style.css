@@ -1,0 +1,19 @@
+body {
+  overflow: hidden;
+  --header-height: 52px;
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #101014;
+}
+
+.banner {
+  height: calc(100vh - var(--header-height));
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: center;
+}
