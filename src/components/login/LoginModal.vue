@@ -1,6 +1,7 @@
 <template>
     <div>
         <n-card style="padding: 0 8px">
+            <!-- 登录页面 -->
             <n-tabs v-if="loginOrReg" default-active="pwdLoginPane" :on-before-leave="handlePaneUpdate" animated>
                 <n-tab-pane name="pwdLoginPane" tab="密码登录">
                     <n-form :show-label="false" ref="pwdLoginForm" :model="pwdLoginFormValue"
@@ -8,7 +9,7 @@
                         <n-form-item-row path="account">
                             <n-input v-model:value="pwdLoginFormValue.account" placeholder="输入用户名 / 邮箱 / 手机号">
                                 <template #prefix>
-                                    <n-icon :component="PersonOutline" />
+                                    <n-icon :component="accountIcon" />
                                 </template>
                             </n-input>
                         </n-form-item-row>
@@ -28,7 +29,7 @@
                         <n-form-item-row path="account">
                             <n-input v-model:value="codeLoginFormValue.account" placeholder="输入邮箱 / 手机号">
                                 <template #prefix>
-                                    <n-icon :component="PersonOutline" />
+                                    <n-icon :component="accountIcon" />
                                 </template>
                             </n-input>
                         </n-form-item-row>
@@ -38,7 +39,8 @@
                                     <n-icon :component="CodeWorkingOutline" />
                                 </template>
                             </n-input>
-                            <ObtainCodeBtn :account="codeLoginFormValue.account" />
+                            <ObtainCodeBtn @account-error="onAccountError" :account="codeLoginFormValue.account"
+                                :account-type="codeLoginFormValue.accountType" />
                         </n-form-item-row>
                     </n-form>
                 </n-tab-pane>
@@ -63,7 +65,8 @@
                                     <n-icon :component="CodeWorkingOutline" />
                                 </template>
                             </n-input>
-                            <ObtainCodeBtn :account="codeLoginFormValue.account" />
+                            <ObtainCodeBtn @account-error="onAccountError" :account="regByPhoneFormValue.phoneNumber"
+                                account-type="phone" />
                         </n-form-item-row>
                         <n-form-item-row path="username">
                             <n-input v-model:value="regByPhoneFormValue.username" :loading="isUsernameInputLoading"
@@ -108,7 +111,8 @@
                                     <n-icon :component="CodeWorkingOutline" />
                                 </template>
                             </n-input>
-                            <ObtainCodeBtn :account="regByEmailFormValue.email" />
+                            <ObtainCodeBtn @account-error="onAccountError" :account="regByEmailFormValue.email"
+                                account-type="email" />
                         </n-form-item-row>
                         <n-form-item-row path="username">
                             <n-input v-model:value="regByEmailFormValue.username" :loading="isUsernameInputLoading"
@@ -140,23 +144,22 @@
 
             <div>
 
-                <n-modal :show="showModal" :on-mask-click="onMaskClick">
+                <n-modal :show="showReCaptchaModal" :on-mask-click="onMaskClick">
                     <ReCaptcha @recaptcha-verified="onVerified" />
                 </n-modal>
 
-                <n-button :type="loginOrRegBtnType" @click="onBtnClick" block strong>
+                <n-button :type="loginOrRegBtnType" attr-type="submit" @click="onMainBtnClick" block strong>
                     {{ loginOrReg ? '登录' : '注册' }}
                 </n-button>
 
                 <div class="forget-and-register">
-                    <n-button type="primary" text>忘记密码</n-button>
                     <n-button type="tertiary" text @click="onToggleBtnClick">
                         {{ loginOrReg ? '注册' : '登录' }}
                     </n-button>
                 </div>
 
                 <div>
-                    {{ JSON.stringify(currentFormValue, null, 2) }}
+                    <!-- {{ JSON.stringify(currentFormValue, null, 2) }} -->
                 </div>
             </div>
         </n-card>
@@ -165,12 +168,19 @@
 
 <script setup lang="ts">
 import ObtainCodeBtn from '@/components/login/ObtainCodeBtn.vue';
-import { NIcon, FormInst, useMessage, FormItemRule, FormRules } from 'naive-ui';
-import { PersonOutline, KeyOutline, CodeWorkingOutline, PhonePortraitOutline, MailOutline } from '@vicons/ionicons5';
+import { NIcon, FormInst, useMessage, FormItemRule, FormRules, MessageReactive, MessageType, FormValidationError } from 'naive-ui';
+import { PersonOutline, KeyOutline, CodeWorkingOutline, PhonePortraitOutline, MailOutline, Person } from '@vicons/ionicons5';
 import ReCaptcha from '@/components/login/ReCaptcha.vue';
 import { authenticationClient } from '@/utils/authing';
+import { Ref } from 'vue';
+import { RegisterProfile, User } from 'authing-js-sdk';
+
+const router = useRouter();
 
 const message = useMessage();
+let messageReactive: MessageReactive | null = null;
+
+let accountIcon = shallowRef(PersonOutline);
 
 function validateAccountType(_rule: FormItemRule, value: string) {
 
@@ -181,12 +191,16 @@ function validateAccountType(_rule: FormItemRule, value: string) {
     if (value.length != 0) {
         if (/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value)) {
             accountType = 'email';
+            accountIcon.value = MailOutline;
         }
         else if (/^1(3\d|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8\d|9[0-35-9])\d{8}$/.test(value)) {
             accountType = 'phone';
+            accountIcon.value = PhonePortraitOutline;
         }
         else {
             accountType = 'username';
+            accountIcon.value = PersonOutline;
+
             if (loginPane == 'codeLoginPane') {
                 return Promise.reject('请输入正确的邮箱或手机号');
             }
@@ -261,7 +275,7 @@ function validatePasswordSame(_rule: FormItemRule, value: string) {
     }
 }
 
-const showModal = ref(false);
+const showReCaptchaModal = ref(false);
 const loginOrReg = ref(true);
 const loginOrRegBtnType = ref('primary');
 
@@ -273,7 +287,13 @@ const regPassword = ref('');
 const regPasswordRepeat = ref('');
 
 const pwdLoginForm = ref<FormInst | null>(null);
-const pwdLoginFormValue = ref({
+type pwdLoginFormValueType = Ref<{
+    loginMethod: string;
+    accountType: string;
+    account: string;
+    password: string;
+}>
+const pwdLoginFormValue: pwdLoginFormValueType = ref({
     loginMethod: 'pwdLogin',
     accountType: '',
     account: '',
@@ -282,19 +302,25 @@ const pwdLoginFormValue = ref({
 const pwdLoginFormRules: FormRules = {
     account: {
         required: true,
-        trigger: 'blur',
+        trigger: 'input',
         validator: validateAccountType
     },
     password: {
         required: true,
         trigger: 'blur',
         min: 8,
-        message: ''
+        message: '密码长度不能小于 8 位'
     }
 }
 
 const codeLoginForm = ref<FormInst | null>(null);
-const codeLoginFormValue = ref({
+type codeLoginFormValueType = Ref<{
+    loginMethod: string;
+    accountType: string;
+    account: string;
+    code: string;
+}>
+const codeLoginFormValue: codeLoginFormValueType = ref({
     loginMethod: 'codeLogin',
     accountType: '',
     account: '',
@@ -302,6 +328,7 @@ const codeLoginFormValue = ref({
 });
 const codeLoginFormRules: FormRules = {
     account: {
+        key: 'account',
         required: true,
         trigger: 'blur',
         validator: validateAccountType
@@ -317,7 +344,15 @@ const codeLoginFormRules: FormRules = {
 }
 
 const regByPhoneForm = ref<FormInst | null>(null);
-const regByPhoneFormValue = ref({
+type regByPhoneFormValueType = Ref<{
+    regMethod: string;
+    phoneNumber: string;
+    code: string;
+    username: string;
+    password: string;
+    passwordRepeat: string;
+}>
+const regByPhoneFormValue: regByPhoneFormValueType = ref({
     regMethod: 'regByPhone',
     phoneNumber: '',
     code: '',
@@ -327,6 +362,7 @@ const regByPhoneFormValue = ref({
 });
 const regByPhoneFormRules = {
     phoneNumber: {
+        key: 'phoneNumber',
         required: true,
         validator: validatePhoneNumber,
         trigger: 'blur'
@@ -357,7 +393,15 @@ const regByPhoneFormRules = {
 }
 
 const regByEmailForm = ref<FormInst | null>(null);
-const regByEmailFormValue = ref({
+type regByEmailFormValueType = Ref<{
+    regMethod: string;
+    email: string;
+    code: string;
+    username: string;
+    password: string;
+    passwordRepeat: string;
+}>
+const regByEmailFormValue: regByEmailFormValueType = ref({
     regMethod: 'regByEmail',
     email: '',
     code: '',
@@ -367,6 +411,7 @@ const regByEmailFormValue = ref({
 });
 const regByEmailFormRules = {
     email: {
+        key: 'email',
         required: true,
         validator: (_rule: FormItemRule, value: string) => {
             return /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value);
@@ -416,7 +461,6 @@ onMounted(() => {
 })
 
 function handlePaneUpdate(name: string) {
-    console.log(name);
     loginPane = name;
 
     if (loginPane == 'pwdLoginPane') {
@@ -436,27 +480,64 @@ function handlePaneUpdate(name: string) {
         currentForm = regByEmailForm;
     }
 
-    console.log(currentFormValue.value);
-
     return true;
 }
 
+function onAccountError() {
+    currentForm.value?.validate(() => {
+        return;
+    }, (rule?: FormItemRule) => {
+        return rule?.key == 'phoneNumber' || rule?.key == 'email' || rule?.key == 'account';
+    })
+}
+
+function onToggleBtnClick() {
+    loginOrReg.value = !(loginOrReg.value);
+    if (loginOrReg.value) {
+        currentFormValue.value = pwdLoginFormValue.value;
+        currentForm = pwdLoginForm;
+    }
+    else {
+        //currentFormValue.value.regMethod = 'regByPhone';
+        currentFormValue.value = regByPhoneFormValue.value;
+        currentForm = regByPhoneForm;
+    }
+}
+
 function onMaskClick() {
-    showModal.value = false;
+    showReCaptchaModal.value = false;
 }
 
 function onVerified() {
-    showModal.value = false;
-    message.success('验证成功');
+    showReCaptchaModal.value = false;
+
+    if (loginOrReg.value && (loginPane == 'pwdLoginPane' || loginPane == 'codeLoginPane')) {
+        messageReactive = message.create('验证成功，正在登录', {
+            type: 'loading',
+            duration: 5000
+        });
+        login(currentFormValue);
+    }
+    else if (!loginOrReg.value && (loginPane == 'regByPhonePane' || loginPane == 'regByEmailPane')) {
+        messageReactive = message.create('验证成功，正在注册', {
+            type: 'loading',
+            duration: 5000
+        });
+        register(currentFormValue);
+    }
+    else {
+        message.error('未知错误');
+    }
 }
 
-function onBtnClick(e: MouseEvent) {
+function onMainBtnClick(e: MouseEvent) {
     e.preventDefault()
     currentForm.value?.validate((errors: any) => {
         if (!errors) {
-            message.success('Valid')
-            showModal.value = true;
-            //TODO: login or register
+            console.log('vaild');
+            showReCaptchaModal.value = true;
+
+            //onVerified();
         } else {
             console.log(errors)
             message.error('请正确填写信息')
@@ -464,19 +545,174 @@ function onBtnClick(e: MouseEvent) {
     })
 }
 
-function onToggleBtnClick(name: string) {
-    loginOrReg.value = !(loginOrReg.value);
-    handlePaneUpdate(name);
+
+function login(formValue: pwdLoginFormValueType | codeLoginFormValueType) {
+
+    if (formValue.value.loginMethod == 'pwdLogin') {
+        const account = formValue.value.account;
+        const password = (formValue as pwdLoginFormValueType).value.password;
+
+        authenticationClient.loginByUsername(account, password).then(user => {
+            onLoggedIn(user);
+        }).catch(err => {
+            onLoginOrRegError(err);
+        });
+    }
+    else if (formValue.value.loginMethod == 'codeLogin') {
+        const account = formValue.value.account;
+        const code = (formValue as codeLoginFormValueType).value.code;
+        const accountType = formValue.value.accountType;
+
+        if (accountType == 'phone') {
+            authenticationClient.loginByPhoneCode(account, code).then(user => {
+                onLoggedIn(user);
+            }).catch(err => {
+                onLoginOrRegError(err);
+            });
+        }
+        else if (accountType == 'email') {
+            authenticationClient.loginByEmail(account, code).then(user => {
+                onLoggedIn(user);
+            }).catch(err => {
+                onLoginOrRegError(err);
+            });
+        }
+        else {
+            message.error('未知错误');
+        }
+    }
 }
 
-function login({ loginMethod, accountType, account, password, code }: {
-    loginMethod: string,
-    accountType: string,
-    account: string,
-    password?: string,
-    code?: string
-}) {
+const authingUser = inject('user') as Ref<User | null>;
 
+function onLoggedIn(user?: User) {
+    if (user) {
+
+        authingUser.value = user;
+
+        if (messageReactive) {
+            messageReactive.type = 'success';
+            messageReactive.content = '欢迎，' + user.username;
+            setTimeout(() => {
+                messageReactive?.destroy();
+            }, 1000);
+        }
+        else {
+            messageReactive = message.create('欢迎，' + user.username, {
+                type: 'success',
+                duration: 1000
+            });
+        }
+        setTimeout(() => {
+            router.push('/home');
+        }, 1000);
+    }
+    else {
+        if (messageReactive) {
+            messageReactive.type = 'error';
+            messageReactive.content = '登录失败，未知错误';
+            setTimeout(() => {
+                messageReactive?.destroy();
+            }, 1000);
+        }
+        else {
+            messageReactive = message.create('登录失败，未知错误', {
+                type: 'error',
+                duration: 1000
+            });
+        }
+    }
+}
+
+function register(formValue: regByPhoneFormValueType | regByEmailFormValueType) {
+    if (formValue.value.regMethod == 'regByPhone') {
+        const phoneNumber = (formValue as regByPhoneFormValueType).value.phoneNumber;
+        const password = formValue.value.password;
+        const code = formValue.value.code;
+        const profile: RegisterProfile = {
+            username: formValue.value.username
+        }
+
+        authenticationClient.registerByPhoneCode(phoneNumber, code, password, profile, { forceLogin: true }).then(user => {
+            onRegistered(user);
+        }).catch(err => {
+            onLoginOrRegError(err);
+        });
+    }
+    else if (formValue.value.regMethod == 'regByEmail') {
+        const email = (formValue as regByEmailFormValueType).value.email;
+        const username = formValue.value.username;
+        const password = formValue.value.password;
+        const code = formValue.value.code;
+
+        authenticationClient.registerByUsername(username, password, undefined, { forceLogin: true }).then(user => {
+            if (user) {
+                authenticationClient.bindEmail(email, code).then(newUser => {
+                    onRegistered(newUser);
+                }).catch(err => {
+                    onLoginOrRegError(err);
+                });
+            }
+        }).catch(err => {
+            onLoginOrRegError(err);
+        });
+    }
+    else {
+        message.error('未知错误');
+    }
+}
+
+function onRegistered(user?: User) {
+    if (user) {
+        if (messageReactive) {
+            messageReactive.type = 'success';
+            messageReactive.content = '注册成功！欢迎，' + user.username;
+            setTimeout(() => {
+                messageReactive?.destroy();
+            }, 1000);
+        }
+        else {
+            messageReactive = message.create('注册成功！欢迎，' + user.username, {
+                type: 'success',
+                duration: 1000
+            });
+        }
+        setTimeout(() => {
+            router.push('/complete-info');
+        }, 1000);
+    }
+    else {
+        if (messageReactive) {
+            messageReactive.type = 'error';
+            messageReactive.content = '注册失败，未知错误';
+            setTimeout(() => {
+                messageReactive?.destroy();
+            }, 1000);
+        }
+        else {
+            messageReactive = message.create('注册失败，未知错误', {
+                type: 'error',
+                duration: 1000
+            });
+        }
+    }
+}
+
+function onLoginOrRegError(err: any) {
+    console.log(err);
+    if (messageReactive) {
+        messageReactive.type = 'error';
+        messageReactive.content = err.message;
+        setTimeout(() => {
+            messageReactive?.destroy();
+        }, 3000);
+    }
+    else {
+        messageReactive = message.create(err.message, {
+            type: 'error',
+            duration: 3000
+        });
+    }
 }
 
 </script>
@@ -491,9 +727,9 @@ function login({ loginMethod, accountType, account, password, code }: {
 }
 
 .forget-and-register {
-    margin: 14px 0;
+    margin: 20px 0 10px 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 :deep()input[type="password"]::-ms-reveal {

@@ -6,8 +6,4 @@
 
 <script setup>
 import LoginModal from '@/components/login/LoginModal.vue';
-
 </script>
-
-<style scoped>
-</style>

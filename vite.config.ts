@@ -20,7 +20,7 @@ export default defineConfig({
           // Index is unauthenticated.
           return {
             ...route,
-            redirect: "/home",
+            redirect: "/welcome",
           };
         }
 

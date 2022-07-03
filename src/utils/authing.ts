@@ -1,10 +1,10 @@
-import { AuthenticationClient } from "authing-js-sdk";
+import { AuthenticationClient, ManagementClient } from "authing-js-sdk";
 
 export const authenticationClient = new AuthenticationClient({
-  appId: "61c5f5f435508b05390c04d3",
-  //appId: "626eaee585a5257cf21440f7",
-  appHost: "https://epms-takasoap.authing.cn"
+  appId: "62a35e7d54fab18ac73c5932",
+  appHost: "https://epms-szu.authing.cn"
 });
+
 
 //   redirectUri: "http://localhost:4000/callback"
 //   tokenEndPointAuthMethod: "none",

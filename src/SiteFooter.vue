@@ -1,5 +1,5 @@
 <template>
-    <n-layout-footer>
+    <n-layout-footer bordered>
         <div style="text-align: center; padding: 20px">
             <n-text depth="3">
                 Copyright © 2022 &nbsp|&nbsp 高泽森 2019122122  &nbsp|&nbsp  网络数据库设计 期末作品

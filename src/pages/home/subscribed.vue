@@ -1,12 +1,11 @@
 <template>
     <div>
-        <n-card title="登录状态" size="medium">
-            
-        </n-card>
+        <PostsView :view="'subscribed'"/>
     </div>
 </template>
 
 <script setup lang="ts">
+import PostsView from '@/components/PostsView.vue';
 
 </script>
 

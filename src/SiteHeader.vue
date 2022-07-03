@@ -1,8 +1,8 @@
 <template>
     <n-layout-header class="nav">
-        <div class="logo" @click="$router.push('/home')">
+        <div class="logo" @click="$router.push('/welcome')">
             <n-button text>
-                <n-gradient-text type="info">
+                <n-gradient-text type="primary">
                     EPMS 实习动态平台
                 </n-gradient-text>
             </n-button>
@@ -40,55 +40,42 @@ const menuOptions: MenuOption[] = [
             h(
                 RouterLink,
                 {
-                    to: '/home'
+                    to: '/welcome'
                 },
-                () => '欢迎页'
+                () => '欢迎'
+            ),
+        key: 'welcome'
+    },
+    {
+        label: () =>
+            h(
+                RouterLink,
+                {
+                    to: '/home/all',
+                },
+                () => '主页'
             ),
         key: 'home'
-    },
-    {
-        label: () =>
-            h(
-                RouterLink,
-                {
-                    to: '/student',
-                },
-                () => '学生端'
-            ),
-        key: 'student'
 
     },
-    {
-        label: () =>
-            h(
-                RouterLink,
-                {
-                    to: '/manage',
-                },
-                () => '管理端'
-            ),
-        key: 'manage'
-
-    },
-    {
-        label: () =>
-            h(
-                RouterLink,
-                {
-                    to: '/about',
-                },
-                () => '关于本站'
-            ),
-        key: 'about'
-    },
+    // {
+    //     label: () =>
+    //         h(
+    //             RouterLink,
+    //             {
+    //                 to: '/about',
+    //             },
+    //             () => '关于'
+    //         ),
+    //     key: 'about'
+    // },
 
 ]
 
 const menuValueRef = computed(() => {
     if (/\/about/.test(route.path)) return 'about'
-    if (/\/manage/.test(route.path)) return 'manage'
-    if (/\/student/.test(route.path)) return 'student'
-    else if (route.name === 'home') return 'home'
+    if (/\/home/.test(route.path)) return 'home'
+    else if (route.name === 'welcome') return 'welcome'
     return null
 })
 

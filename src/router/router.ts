@@ -32,7 +32,7 @@ export default function createSiteRouter(routes: any) {
       }
       nextTick(() => {
         const h1s = document.getElementsByTagName("h1");
-        if (to.name !== "home" && h1s.length !== 0) {
+        if (to.name !== "welcome" && h1s.length !== 0) {
           document.title = h1s[0].textContent + " - EPMS";
         }
         // else, defined in index.html
