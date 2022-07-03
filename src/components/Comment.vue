@@ -48,7 +48,7 @@ const emit = defineEmits<{
 }>()
 
 function handleDelete() {
-    axios.delete('https://epms.takasoap.xyz/api/Post/comment/' + props.commentId, {
+    axios.delete('https://epms-api.takasoap.xyz/api/Post/comment/' + props.commentId, {
         headers: {
             'Authorization': `Bearer ${user.value!.token}`
         }

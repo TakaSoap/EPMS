@@ -27,7 +27,7 @@ const user = inject('user') as Ref<User|null>;
 const comments: Ref<Comment[]> = ref([]);
 
 function getCommentsByPostId(postId: string) {
-    axios.get('https://epms.takasoap.xyz/api/Post/getcomments/' + postId, {
+    axios.get('https://epms-api.takasoap.xyz/api/Post/getcomments/' + postId, {
         headers: {
             'Authorization': `Bearer ${user.value!.token}`
         }

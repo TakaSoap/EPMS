@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PostsView/>
+        <PostsView :view="'samebase'"/>
     </div>
 </template>
 

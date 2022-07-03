@@ -68,7 +68,7 @@ function getSameBasePosts() {
     setTimeout(() => {
         console.log('start axios');
         posts.value = [];
-        axios.get('https://epms.takasoap.xyz/api/Post/getsamebase', {
+        axios.get('https://epms-api.takasoap.xyz/api/Post/getsamebase', {
             headers: {
                 'Authorization': `Bearer ${user.value!.token}`
             }
@@ -88,7 +88,7 @@ function getSubscribedPosts() {
     setTimeout(() => {
         console.log('start axios');
         posts.value = [];
-        axios.get('https://epms.takasoap.xyz/api/Post/getsubscribed', {
+        axios.get('https://epms-api.takasoap.xyz/api/Post/getsubscribed', {
             headers: {
                 'Authorization': `Bearer ${user.value!.token}`
             }
@@ -108,7 +108,7 @@ function getSelfPosts() {
     setTimeout(() => {
         console.log('start axios');
         posts.value = [];
-        axios.get('https://epms.takasoap.xyz/api/Post/getself', {
+        axios.get('https://epms-api.takasoap.xyz/api/Post/getself', {
             headers: {
                 'Authorization': `Bearer ${user.value!.token}`
             }
@@ -128,7 +128,7 @@ function getAllPosts() {
     setTimeout(() => {
         console.log('start axios');
         posts.value = [];
-        axios.get('https://epms.takasoap.xyz/api/Post/getall', {
+        axios.get('https://epms-api.takasoap.xyz/api/Post/getall', {
             headers: {
                 'Authorization': `Bearer ${user.value!.token}`
             }

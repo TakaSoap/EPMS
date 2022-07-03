@@ -103,7 +103,7 @@
                         </n-button>
                     </n-form-item-row>
                 </n-form>
-                {{ JSON.stringify(addStudentFormValue) + regPassword + regPasswordRepeat }}
+                <!-- {{ JSON.stringify(addStudentFormValue) + regPassword + regPasswordRepeat }} -->
             </n-card>
         </n-modal>
 
@@ -146,7 +146,7 @@
                         </n-button>
                     </n-form-item-row>
                 </n-form>
-                {{ JSON.stringify(editStudentFormValue) + regPassword + regPasswordRepeat }}
+                <!-- {{ JSON.stringify(editStudentFormValue) + regPassword + regPasswordRepeat }} -->
             </n-card>
         </n-modal>
     </div>
@@ -410,7 +410,7 @@ const columns = createColumns({
             phoneNumber: row.phoneNumber,
             email: row.email
         };
-        message.info(JSON.stringify(row, null, 2))
+        // message.info(JSON.stringify(row, null, 2))
     }
 })
 
@@ -429,7 +429,7 @@ function onAddStudent() {
     addStudentForm.value?.validate((errors) => {
         if (!errors) {
 
-            axios.post('https://epms.takasoap.xyz/api/Student', addStudentFormValue.value, {
+            axios.post('https://epms-api.takasoap.xyz/api/Student', addStudentFormValue.value, {
                 headers: {
                     Authorization: `Bearer ${user!.token}`
                 }
@@ -458,9 +458,9 @@ function onAddStudent() {
 
 function onDeleteStudent() {
 
-    console.log(JSON.stringify(checkedRowKeys.value.map((key) => key.toString())));
+    // console.log(JSON.stringify(checkedRowKeys.value.map((key) => key.toString())));
 
-    axios.delete('https://epms.takasoap.xyz/api/Student', {
+    axios.delete('https://epms-api.takasoap.xyz/api/Student', {
         headers: {
             Authorization: `Bearer ${user!.token}`
         },
@@ -477,7 +477,7 @@ function onDeleteStudent() {
 }
 
 function getAllStudents() {
-    axios.get('https://epms.takasoap.xyz/api/Student', {
+    axios.get('https://epms-api.takasoap.xyz/api/Student', {
         headers: {
             Authorization: `Bearer ${user!.token}`
         }
@@ -491,7 +491,7 @@ function getAllStudents() {
 
 function onEditStudent() {
 
-    axios.put(`https://epms.takasoap.xyz/api/Student/${editStudentFormValue.value.id}`, editStudentFormValue.value, {
+    axios.put(`https://epms-api.takasoap.xyz/api/Student/${editStudentFormValue.value.id}`, editStudentFormValue.value, {
         headers: {
             Authorization: `Bearer ${user!.token}`
         }
@@ -506,7 +506,7 @@ function onEditStudent() {
 }
 
 function getBaseName() {
-    axios.get('https://epms.takasoap.xyz/api/Student/base', {
+    axios.get('https://epms-api.takasoap.xyz/api/Student/base', {
         headers: {
             Authorization: `Bearer ${user!.token}`
         }

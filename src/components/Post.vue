@@ -9,10 +9,10 @@
                     <div style="line-height: 1.4">
                         <n-text type="Success">{{ props.postUsername }}</n-text>
                         <br />
-                        <n-text depth="3" style="font-size: 9px">
+                        <n-text depth="3" style="font-size: 0.9em">
                             <n-time :time="props.postTime" type="relative" unix />
                         </n-text>
-                        <n-text depth="3" style="font-size: 9px">
+                        <n-text depth="3" style="font-size: 0.9em">
                             ·&nbsp;{{ props.postUserBase }}
                         </n-text>
                     </div>
@@ -167,7 +167,7 @@ function handleSubscribe() {
 
     if (isSubscribed.value) {
 
-        axios.delete(`https://epms.takasoap.xyz/api/Post/subscribe/${props.postUserId}`, {
+        axios.delete(`https://epms-api.takasoap.xyz/api/Post/subscribe/${props.postUserId}`, {
             headers: {
                 'Authorization': `Bearer ${user.value!.token}`
             }
@@ -185,7 +185,7 @@ function handleSubscribe() {
     }
     else {
 
-        axios.post(`https://epms.takasoap.xyz/api/Post/subscribe/${props.postUserId}`, {}, {
+        axios.post(`https://epms-api.takasoap.xyz/api/Post/subscribe/${props.postUserId}`, {}, {
             headers: {
                 'Authorization': `Bearer ${user.value!.token}`
             }
@@ -234,7 +234,7 @@ const user = inject('user') as Ref<User | null>;
 const message = useMessage();
 
 function handleRate() {
-    axios.post('https://epms.takasoap.xyz/api/Post/rate', {
+    axios.post('https://epms-api.takasoap.xyz/api/Post/rate', {
         postId: props.postId,
         score: rateValue.value
     }, {
@@ -253,7 +253,7 @@ const emit = defineEmits<{
 }>()
 
 function handleDelete() {
-    axios.delete('https://epms.takasoap.xyz/api/Post/' + props.postId, {
+    axios.delete('https://epms-api.takasoap.xyz/api/Post/' + props.postId, {
         headers: {
             Authorization: `Bearer ${user.value!.token}`
         },
@@ -273,7 +273,7 @@ function handleComment() {
         return;
     }
 
-    axios.post('https://epms.takasoap.xyz/api/Post/comment', {
+    axios.post('https://epms-api.takasoap.xyz/api/Post/comment', {
         postId: props.postId,
         content: commentValue.value
     }, {

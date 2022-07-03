@@ -100,7 +100,7 @@ function onSubmit() {
         profile: completeInfoFormValue.value.userType
     })
 
-    axios.post('https://epms.takasoap.xyz/api/User', {
+    axios.post('https://epms-api.takasoap.xyz/api/User', {
         name: completeInfoFormValue.value.name,
         userType: completeInfoFormValue.value.userType,
         baseId: completeInfoFormValue.value.base

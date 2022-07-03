@@ -14,7 +14,7 @@
                 </n-form-item>
 
                 <n-upload ref="postUpload" list-type="image" :headers="header" @change="handleChange"
-                    action="https://epms.takasoap.xyz/api/Upload" @finish="onUploaded" abstract>
+                    action="https://epms-api.takasoap.xyz/api/Upload" @finish="onUploaded" abstract>
                     <n-space vertical>
                         <n-upload-file-list />
 
@@ -30,7 +30,7 @@
                                         上传文件
                                     </n-button>
                                 </n-upload-trigger>
-                                <n-text style="font-size:8px;" depth="3">你可以上传图片、视频、文档等各种文件</n-text>
+                                <n-text style="font-size:0.9em;" depth="3">你可以上传图片、视频、文档等各种文件</n-text>
                             </n-space>
 
                             <n-button @click="onPostSubmit" type="primary">
@@ -120,7 +120,7 @@ function onPostSubmit() {
         });
     });
 
-    const result = axios.post('https://epms.takasoap.xyz/api/Post', newPost.value, {
+    const result = axios.post('https://epms-api.takasoap.xyz/api/Post', newPost.value, {
         headers: {
             Authorization: `Bearer ${user.value!.token}`
         }
