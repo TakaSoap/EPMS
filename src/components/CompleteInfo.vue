@@ -49,10 +49,11 @@ onMounted(() => {
             router.push('/login');
             return;
         }
-        // else if (user.profile == 'tutor' || user.profile == 'student' || user.profile == 'leader') {
-        //     router.push('/home/all');
-        //     return;
-        // }
+        else if (user.profile == 'tutor' || user.profile == 'student' || user.profile == 'leader') {
+            router.push('/home/all');
+            message.info('你已完善信息');
+            return;
+        }
 
         currentUser = user;
         console.log(currentUser?.token);
@@ -111,6 +112,7 @@ function onSubmit() {
     }).then(() => {
         message.success('信息提交成功');
         router.push('/home/all');
+        window.location.reload();
     }).catch(err => {
         message.error(err.message);
     });

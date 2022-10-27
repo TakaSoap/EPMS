@@ -132,27 +132,28 @@ const menuOptionsRef = ref(menuOptions);
 
 onMounted(() => {
 
-    setTimeout(() => {
-        console.log('start getUser');
-        if (user.value == null) {
-            message.warning('请先登录');
-            router.push("/login");
-        }
+    if (user.value == null) {
+        message.warning('似乎没有登录');
+        router.push('/home');
+    }
 
-        if (user.value?.profile == 'tutor' || user.value?.profile == 'leader') {
-            menuOptionsRef.value.splice(5, 0, {
-                label: () =>
-                    h(
-                        RouterLink,
-                        {
-                            to: '/home/manage'
-                        },
-                        () => '学生管理'
-                    ),
-                key: 'manage',
-                icon: renderIcon(FileTrayFullOutline),
-            });
-        }
+    if (user.value?.profile == 'tutor' || user.value?.profile == 'leader') {
+        menuOptionsRef.value.splice(5, 0, {
+            label: () =>
+                h(
+                    RouterLink,
+                    {
+                        to: '/home/manage'
+                    },
+                    () => '学生管理'
+                ),
+            key: 'manage',
+            icon: renderIcon(FileTrayFullOutline),
+        });
+    }
+
+    setTimeout(() => {
+
     }, 500);
 
 

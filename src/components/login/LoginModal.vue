@@ -494,11 +494,12 @@ function onAccountError() {
 function onToggleBtnClick() {
     loginOrReg.value = !(loginOrReg.value);
     if (loginOrReg.value) {
+        loginPane = 'pwdLoginPane';
         currentFormValue.value = pwdLoginFormValue.value;
         currentForm = pwdLoginForm;
     }
     else {
-        //currentFormValue.value.regMethod = 'regByPhone';
+        loginPane = 'regByPhonePane';
         currentFormValue.value = regByPhoneFormValue.value;
         currentForm = regByPhoneForm;
     }
@@ -571,7 +572,7 @@ function login(formValue: pwdLoginFormValueType | codeLoginFormValueType) {
             });
         }
         else if (accountType == 'email') {
-            authenticationClient.loginByEmail(account, code).then(user => {
+            authenticationClient.loginByEmailCode(account, code).then(user => {
                 onLoggedIn(user);
             }).catch(err => {
                 onLoginOrRegError(err);

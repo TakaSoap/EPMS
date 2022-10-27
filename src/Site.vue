@@ -2,9 +2,11 @@
     <div>
         <n-layout position="absolute" :native-scrollbar="false">
             <SiteHeader class="site-header" />
-            <div class="main-container">
-                <router-view v-if="isRouterActive"/>
-            </div>
+            <n-spin :show="loading">
+                <div class="main-container">
+                    <router-view v-if="!loading" />
+                </div>
+            </n-spin>
             <SiteFooter />
         </n-layout>
     </div>
@@ -13,11 +15,13 @@
 <script setup lang="ts">
 import SiteHeader from '@/SiteHeader.vue'
 import SiteFooter from '@/SiteFooter.vue'
-import { useLoadingBar } from "naive-ui";
+import { useLoadingBar, useMessage } from "naive-ui";
 import { loadingBarApiRef } from '@/router/router'
 import { User } from 'authing-js-sdk';
 import { Ref } from 'vue';
 import { authenticationClient } from './utils/authing';
+
+const loading = ref(true);
 
 const router = useRouter();
 const route = useRoute();
@@ -25,17 +29,28 @@ const loadingBar = useLoadingBar()
 
 const isRouterActive = ref(true);
 
+const message = useMessage();
+
 let user: Ref<User | null> = ref(null);
 let getUserResult = authenticationClient.getCurrentUser();
 getUserResult.then(result => {
     if (result) {
         user.value = result;
+        loading.value = false;
+
+        if (user.value.profile != 'tutor' && user.value.profile != 'leader' && user.value.profile != 'student') {
+            message.warning('先去完善信息吧');
+            router.push("/complete-info");
+        }
+
         console.log('got user')
     }
     else if (route.name === 'welcome') {
+        loading.value = false;
         return;
     }
     else {
+        loading.value = false;
         router.push("/login");
     }
 }).catch(err => {
@@ -67,11 +82,11 @@ watch(
 </script>
 
 <style scoped>
-/* .main-container {
-    height: calc(100vh - var(--header-height));
+.main-container {
+    min-height: calc(100vh - var(--header-height));
 }
 
-.site-header {
+/*.site-header {
     height: var(--header-height);
 } */
 </style>
